@@ -5,10 +5,7 @@
 class ScopedSearch
   class Base
     extend ActiveModel::Naming
-    
-    SINGLE_SCOPES_VALUES = %w(true 1)
-    EXCLUDED_SCOPES_VALUES = %w(false 0)
-    
+
     attr_reader :attributes, :model_class, :attributes_merged
     
     def initialize(klass, options)
@@ -33,21 +30,22 @@ class ScopedSearch
     
     def build_relation
       return model_class if attributes.empty?
-      attributes.reject { |k,v| v.blank? || EXCLUDED_SCOPES_VALUES.include?(v.to_s) }.inject(model_class) do |s, k|
+      attributes.reject { |k,v| v.blank? || v.to_s == "false" }.inject(model_class) do |s, k|
         if model_class.scopes.keys.include?(k.first.to_sym)
-          
-          if k.size == 2 && !k.last.is_a?(Array) && SINGLE_SCOPES_VALUES.include?(k.last.to_s)
+          if k.second.is_a?(Array) && multi_params?(k.first)
+            s.send(*k.flatten)
+          elsif k.second.to_s == "true"
             s.send(k.first)
           else
-            multi_params?(k.first) ? s.send(*k.flatten) : s.send(k.first, k[1..-1].flatten)
+            s.send(k.first, k.second)
           end
-          
+
         else
           s
         end
       end
     end
-    
+
     def to_key; nil; end
     
     def method_missing(method_name, *args)
