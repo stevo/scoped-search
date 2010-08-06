@@ -119,6 +119,19 @@ Then in your views, you may use the order_for_scoped_search view helper like thi
       ...
 </pre>
 
+h2. Scopes with no arguments and excluded scopes
+
+If a scope attribute in the ScopedSearch object has a value that equals to "true", the scope will be chained without any parameters.
+If the scope attribute has a value that is blank? or equals to "false", the scope will be rejected and won't be chained in the search.
+
+Example :
+
+<pre>
+  search = User.scoped_search({ :accepted => "true", :rejected => "", :refused => "false", :has_email => ["foo@bar.com", "bar@foo.com"] })
+
+  search.all # => results in User.accepted.has_email(["foo@bar.com", "bar@foo.com"])
+</pre>
+
 h2. Issue with single Array attribute and multi parameters scopes
 
 When you define a scope, you may define it with a single value that accepts an array, or as a multi parameters scope.
