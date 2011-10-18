@@ -96,6 +96,10 @@ class ScopedSearch
     extend ActiveSupport::Concern
     
     module ClassMethods
+       def scopes
+        read_inheritable_attribute(:scopes) || write_inheritable_attribute(:scopes, {})
+       end
+
       def scoped_search(options={})
         ScopedSearch::Base.new(self, options.present? ? options : {})
       end
